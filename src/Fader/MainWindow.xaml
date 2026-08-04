@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="Fader.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Fader"
+    xmlns:pages="using:Fader.Pages">
+
+    <!--
+        RootGrid: fills the entire window content area.
+        Background is intentionally transparent so Mica shows through.
+        On Windows 10 fallback, MainWindow.xaml.cs sets the background programmatically.
+    -->
+    <Grid x:Name="RootGrid" Background="Transparent">
+        <Grid.RowDefinitions>
+            <!-- Custom drag region for title bar -->
+            <RowDefinition Height="48" />
+            <!-- Main content area -->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- ═══ Custom Title Bar ════════════════════════════════════════════ -->
+        <Grid Grid.Row="0"
+              x:Name="TitleBarGrid"
+              IsHitTestVisible="True">
+
+            <Grid.ColumnDefinitions>
+                <!-- Left padding for window caption buttons -->
+                <ColumnDefinition Width="16" />
+                <!-- App icon -->
+                <ColumnDefinition Width="28" />
+                <!-- App title -->
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- App icon in title bar -->
+            <Image Grid.Column="1"
+                   Source="Assets/AppIcon.png"
+                   Width="20" Height="20"
+                   VerticalAlignment="Center"
+                   IsHitTestVisible="False" />
+
+            <!-- App name -->
+            <TextBlock Grid.Column="2"
+                       Text="Fader"
+                       VerticalAlignment="Center"
+                       Margin="8,0,0,0"
+                       Style="{StaticResource TitleBarTextStyle}"
+                       IsHitTestVisible="False" />
+        </Grid>
+
+        <!-- ═══ Page Content ════════════════════════════════════════════════ -->
+        <pages:DashboardPage Grid.Row="1" />
+
+    </Grid>
+</Window>

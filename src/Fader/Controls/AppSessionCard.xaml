@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Fader.Controls.AppSessionCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Fader.Controls"
+    xmlns:models="using:Fader.Core.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <!--
+        AppSessionCard: displays a single audio session as a card.
+        Shows the app icon (if resolvable), display name, volume bar, and playing indicator.
+        Role selector (Background / Trigger / None) is shown inline.
+    -->
+    <Border x:Name="CardRoot"
+            Style="{StaticResource SessionCardStyle}"
+            PointerEntered="OnPointerEntered"
+            PointerExited="OnPointerExited">
+
+        <Grid Padding="14,12">
+            <Grid.ColumnDefinitions>
+                <!-- App icon -->
+                <ColumnDefinition Width="36" />
+                <!-- App name + volume bar -->
+                <ColumnDefinition Width="*" />
+                <!-- Playing indicator + role badge -->
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ── App Icon ── -->
+            <Border Grid.Column="0"
+                    Width="32" Height="32"
+                    CornerRadius="8"
+                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                    VerticalAlignment="Center">
+                <Image x:Name="AppIcon"
+                       Width="24" Height="24"
+                       Stretch="Uniform"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center" />
+            </Border>
+
+            <!-- ── App Name + Volume ── -->
+            <StackPanel Grid.Column="1"
+                        Margin="12,0,12,0"
+                        VerticalAlignment="Center"
+                        Spacing="5">
+
+                <TextBlock x:Name="AppNameText"
+                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                           TextTrimming="CharacterEllipsis"
+                           MaxLines="1" />
+
+                <!-- Volume bar -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="36" />
+                    </Grid.ColumnDefinitions>
+
+                    <ProgressBar x:Name="VolumeBar"
+                                 Grid.Column="0"
+                                 Maximum="1.0"
+                                 Height="4"
+                                 VerticalAlignment="Center"
+                                 Style="{StaticResource VolumeProgressBarStyle}" />
+
+                    <TextBlock x:Name="VolumeText"
+                               Grid.Column="1"
+                               TextAlignment="Right"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}" />
+                </Grid>
+            </StackPanel>
+
+            <!-- ── Playing Indicator + Role ── -->
+            <StackPanel Grid.Column="2"
+                        VerticalAlignment="Center"
+                        Spacing="6"
+                        HorizontalAlignment="Right">
+
+                <!-- Playing pulse dot (visible only when IsPlaying) -->
+                <Ellipse x:Name="PlayingDot"
+                         Width="7" Height="7"
+                         HorizontalAlignment="Center"
+                         Visibility="Collapsed">
+                    <Ellipse.Fill>
+                        <SolidColorBrush Color="#4ADE80" />
+                    </Ellipse.Fill>
+                </Ellipse>
+
+                <!-- Role ComboBox -->
+                <ComboBox x:Name="RoleCombo"
+                          Style="{StaticResource RoleComboBoxStyle}"
+                          SelectionChanged="OnRoleChanged"
+                          MinWidth="90">
+                    <ComboBoxItem Content="None" Tag="None" />
+                    <ComboBoxItem Content="Background" Tag="Background" />
+                    <ComboBoxItem Content="Trigger" Tag="Trigger" />
+                </ComboBox>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

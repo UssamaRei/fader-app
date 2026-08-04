@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!--
+      net10.0-windows10.0.22621.0 = Windows 11 22H2 (minimum for Mica backdrop).
+      Mica gracefully degrades on older Windows versions.
+    -->
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <RootNamespace>Fader</RootNamespace>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!--
+      Publish as self-contained single-file for final distribution.
+      During development, framework-dependent is fine.
+    -->
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.3.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="H.NotifyIcon.WinUI" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fader.Core\Fader.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copy app icon to output -->
+    <Content Include="Assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,52 @@
+## Fader — .gitignore
+
+# Build outputs
+bin/
+obj/
+out/
+artifacts/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+!**/packages/repositories.config
+.nuget/
+
+# WinUI 3 / Windows App SDK
+AppPackages/
+BundleArtifacts/
+*.msix
+*.msixbundle
+*.msixupload
+*.appx
+*.appxbundle
+
+# Log files (Serilog output)
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Rider / JetBrains
+.idea/
+
+# VSCode
+.vscode/
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# User-specific settings
+*.suo
+*.user
+*.userosscache

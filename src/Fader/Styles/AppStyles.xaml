@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AppStyles.xaml
+    Application-wide style tokens and component styles for Fader.
+
+    Design system:
+    - Mica dark background (provided by MicaController in MainWindow)
+    - Accent: #6366F1 (indigo, professional, modern)
+    - Cards: subtle glassmorphism via CardBackgroundFillColorDefaultBrush + blur
+    - Typography: Segoe UI Variable (Windows 11 system font)
+    - Corner radii: 10–12px for cards, 6–8px for controls
+-->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         COLOR TOKENS
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Primary accent (indigo) -->
+    <Color x:Key="FaderAccentColor">#6366F1</Color>
+    <SolidColorBrush x:Key="FaderAccentBrush" Color="{StaticResource FaderAccentColor}" />
+
+    <!-- Accent glow (for card borders on hover) -->
+    <Color x:Key="FaderAccentGlowColor">#886366F1</Color>
+    <SolidColorBrush x:Key="FaderAccentGlowBrush" Color="{StaticResource FaderAccentGlowColor}" />
+
+    <!-- Status green -->
+    <Color x:Key="FaderRunningColor">#4ADE80</Color>
+    <SolidColorBrush x:Key="FaderRunningBrush" Color="{StaticResource FaderRunningColor}" />
+
+    <!-- Card surface -->
+    <Color x:Key="FaderCardColor">#1AFFFFFF</Color>
+    <SolidColorBrush x:Key="FaderCardBrush" Color="{StaticResource FaderCardColor}" />
+
+    <!-- Card border (subtle white rim) -->
+    <Color x:Key="FaderCardBorderColor">#26FFFFFF</Color>
+    <SolidColorBrush x:Key="FaderCardBorderBrush" Color="{StaticResource FaderCardBorderColor}" />
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         DIMENSION TOKENS
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
+    <CornerRadius x:Key="BadgeCornerRadius">4</CornerRadius>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TYPOGRAPHY STYLES
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="TitleBarTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
+        <Setter Property="FontFamily" Value="Segoe UI Variable Display" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="CharacterSpacing" Value="60" />
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+        <Setter Property="FontFamily" Value="Segoe UI Variable Text" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CARD STYLES
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Generic card container -->
+    <Style x:Key="CardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource FaderCardBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource FaderCardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CardCornerRadius}" />
+    </Style>
+
+    <!-- Session card (with hover transition) -->
+    <Style x:Key="SessionCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource FaderCardBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource FaderCardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CardCornerRadius}" />
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <TransitionCollection>
+                    <EntranceThemeTransition />
+                </TransitionCollection>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Empty state container -->
+    <Style x:Key="EmptyStateBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource FaderCardBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource FaderCardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource CardCornerRadius}" />
+        <Setter Property="Padding" Value="24,32" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CONTROL STYLES
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Icon-only button (for refresh, etc.) -->
+    <Style x:Key="IconButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource FaderCardBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource FaderCardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
+        <Setter Property="Width" Value="36" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
+    </Style>
+
+    <!-- Volume ProgressBar — thin accent-colored bar -->
+    <Style x:Key="VolumeProgressBarStyle" TargetType="ProgressBar">
+        <Setter Property="Background" Value="#1AFFFFFF" />
+        <Setter Property="Foreground" Value="{StaticResource FaderAccentBrush}" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Height" Value="4" />
+    </Style>
+
+    <!-- Compact role ComboBox -->
+    <Style x:Key="RoleComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="CornerRadius" Value="{StaticResource BadgeCornerRadius}" />
+        <Setter Property="Background" Value="#0DFFFFFF" />
+        <Setter Property="BorderBrush" Value="{StaticResource FaderCardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Height" Value="28" />
+    </Style>
+
+</ResourceDictionary>
