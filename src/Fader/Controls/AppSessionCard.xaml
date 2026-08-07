@@ -60,12 +60,12 @@
                         <ColumnDefinition Width="36" />
                     </Grid.ColumnDefinitions>
 
-                    <ProgressBar x:Name="VolumeBar"
-                                 Grid.Column="0"
-                                 Maximum="1.0"
-                                 Height="4"
-                                 VerticalAlignment="Center"
-                                 Style="{StaticResource VolumeProgressBarStyle}" />
+                    <Slider x:Name="VolumeSlider"
+                            Grid.Column="0"
+                            Minimum="0" Maximum="100"
+                            VerticalAlignment="Center"
+                            ValueChanged="OnVolumeSliderChanged"
+                            Margin="0,0,12,0" />
 
                     <TextBlock x:Name="VolumeText"
                                Grid.Column="1"

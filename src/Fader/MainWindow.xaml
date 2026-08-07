@@ -4,7 +4,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Fader"
-    xmlns:pages="using:Fader.Pages">
+    xmlns:pages="using:Fader.Pages"
+    xmlns:tb="using:H.NotifyIcon">
 
     <!--
         RootGrid: fills the entire window content area.
@@ -12,12 +13,35 @@
         On Windows 10 fallback, MainWindow.xaml.cs sets the background programmatically.
     -->
     <Grid x:Name="RootGrid" Background="Transparent">
+        
         <Grid.RowDefinitions>
             <!-- Custom drag region for title bar -->
             <RowDefinition Height="48" />
             <!-- Main content area -->
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+
+        <!-- System Tray Icon -->
+        <tb:TaskbarIcon x:Name="TrayIcon"
+                        ToolTipText="Fader"
+                        IconSource="/Assets/AppIcon.ico"
+                        DoubleClickCommand="{x:Bind ShowWindowCommand}">
+            <tb:TaskbarIcon.ContextFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Text="Open Fader" Command="{x:Bind ShowWindowCommand}">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE1A5;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="Exit" Click="MenuExit_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE106;" />
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuFlyout>
+            </tb:TaskbarIcon.ContextFlyout>
+        </tb:TaskbarIcon>
 
         <!-- ═══ Custom Title Bar ════════════════════════════════════════════ -->
         <Grid Grid.Row="0"
@@ -31,6 +55,8 @@
                 <ColumnDefinition Width="28" />
                 <!-- App title -->
                 <ColumnDefinition Width="*" />
+                <!-- Settings Button -->
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <!-- App icon in title bar -->
@@ -47,10 +73,19 @@
                        Margin="8,0,0,0"
                        Style="{StaticResource TitleBarTextStyle}"
                        IsHitTestVisible="False" />
+                       
+            <!-- Settings Button -->
+            <!-- We dynamically add RightInset to TitleBarGrid in code-behind to avoid system buttons -->
+            <AppBarButton Grid.Column="3" 
+                          x:Name="SettingsButton"
+                          Icon="Setting"
+                          Width="48" Height="48"
+                          Click="SettingsButton_Click"
+                          ToolTipService.ToolTip="Settings" />
         </Grid>
 
         <!-- ═══ Page Content ════════════════════════════════════════════════ -->
-        <pages:DashboardPage Grid.Row="1" />
+        <Frame x:Name="RootFrame" Grid.Row="1" />
 
     </Grid>
 </Window>

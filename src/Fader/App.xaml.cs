@@ -72,15 +72,27 @@ public partial class App : Application
 
         // ── Core Audio Services ────────────────────────────────────────────────
 
-        // AudioSessionManager is a heavyweight singleton — it holds live COM references.
-        services.AddSingleton<AudioSessionManager>();
+        // ── Core Services ─────────────────────────────────────────────────────────
+        services.AddSingleton<Fader.Core.Services.ISettingsService, Fader.Core.Services.SettingsService>();
+        services.AddSingleton<IAudioSessionManager, AudioSessionManager>();
+        
+        // ── Ducking Engine ──────────────────────────────────────────────────────
+        services.AddSingleton<FadeEngine>();
+        services.AddSingleton<AudioMonitor>();
+        services.AddSingleton<DuckingService>();
 
         // ── ViewModels ────────────────────────────────────────────────────────
 
         services.AddSingleton<DashboardViewModel>();
+        services.AddSingleton<SettingsViewModel>();
 
         // ── Build ──────────────────────────────────────────────────────────────
 
         Services = services.BuildServiceProvider();
+
+        // ── Force Startup ──────────────────────────────────────────────────────
+        // Resolve the DuckingService immediately so it begins listening to 
+        // AudioMonitor and AudioSessionManager events in the background.
+        _ = Services.GetRequiredService<DuckingService>();
     }
 }

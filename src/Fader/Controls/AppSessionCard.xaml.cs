@@ -41,9 +41,51 @@ public sealed partial class AppSessionCard : UserControl
 
     private static void OnSessionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is AppSessionCard card && e.NewValue is AudioSession session)
+        if (d is AppSessionCard card)
         {
-            card.UpdateFromSession(session);
+            if (e.OldValue is AudioSession oldSession)
+            {
+                oldSession.PropertyChanged -= card.OnSessionPropertyChanged;
+            }
+            if (e.NewValue is AudioSession newSession)
+            {
+                newSession.PropertyChanged += card.OnSessionPropertyChanged;
+                card.UpdateFromSession(newSession);
+            }
+        }
+    }
+
+    private bool _volumeUpdatePending;
+
+    private void OnSessionPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (sender is not AudioSession session) return;
+        
+        // WASAPI events arrive on background threads; marshal to UI
+        if (e.PropertyName == nameof(AudioSession.Volume))
+        {
+            if (_volumeUpdatePending) return;
+            _volumeUpdatePending = true;
+
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _volumeUpdatePending = false;
+                UpdateVolumeUI(session.Volume);
+            });
+        }
+        else
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (e.PropertyName == nameof(AudioSession.IsPlaying))
+                {
+                    UpdatePlayingState(session.IsPlaying);
+                }
+                else if (e.PropertyName == nameof(AudioSession.Role))
+                {
+                    UpdateRoleCombo(session.Role);
+                }
+            });
         }
     }
 
@@ -53,8 +95,7 @@ public sealed partial class AppSessionCard : UserControl
         AppNameText.Text = session.DisplayName;
 
         // Volume
-        VolumeBar.Value = session.Volume;
-        VolumeText.Text = $"{session.Volume:P0}";
+        UpdateVolumeUI(session.Volume);
 
         // Playing state
         UpdatePlayingState(session.IsPlaying);
@@ -64,6 +105,25 @@ public sealed partial class AppSessionCard : UserControl
 
         // Load icon asynchronously (don't block)
         _ = LoadIconAsync(session.ExecutablePath);
+    }
+
+    private bool _isUpdatingVolumeUI;
+
+    private void UpdateVolumeUI(float volume)
+    {
+        _isUpdatingVolumeUI = true;
+        VolumeSlider.Value = volume * 100;
+        VolumeText.Text = $"{volume:P0}";
+        _isUpdatingVolumeUI = false;
+    }
+
+    private void OnVolumeSliderChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    {
+        if (_isUpdatingVolumeUI || Session == null) return;
+
+        // Route the UI change back to the AudioSessionManager (via DI)
+        var audioManager = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Fader.Core.Audio.IAudioSessionManager>(App.Services);
+        audioManager.SetVolume(Session.SessionId, (float)(e.NewValue / 100.0));
     }
 
     private void UpdatePlayingState(bool isPlaying)
@@ -123,18 +183,19 @@ public sealed partial class AppSessionCard : UserControl
 
     private void OnRoleChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (Session is null) return;
+        if (Session == null || RoleCombo.SelectedItem is not ComboBoxItem item) return;
 
-        var newRole = RoleCombo.SelectedIndex switch
+        if (Enum.TryParse<AppRole>(item.Tag?.ToString(), out var newRole))
         {
-            0 => AppRole.None,
-            1 => AppRole.Background,
-            2 => AppRole.Trigger,
-            _ => AppRole.None
-        };
+            if (Session.Role != newRole)
+            {
+                Session.Role = newRole;
 
-        Session.Role = newRole;
-        // TODO Phase 8: persist via SettingsService
+                // Save to settings
+                var settingsService = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Fader.Core.Services.ISettingsService>(App.Services);
+                settingsService.SetAppRole(Session.ExecutablePath, newRole);
+            }
+        }
     }
 
     private void OnPointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)

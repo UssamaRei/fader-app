@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Fader.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}" Margin="0,0,0,24" />
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16" MaxWidth="600" HorizontalAlignment="Left">
+                
+                <!-- Audio Ducking Category -->
+                <TextBlock Text="Audio Ducking" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <Border Style="{StaticResource CardBorderStyle}" Padding="16">
+                    <StackPanel Spacing="12">
+                        
+                        <ToggleSwitch Header="Enable Ducking" 
+                                      IsOn="{x:Bind ViewModel.DuckingEnabled, Mode=TwoWay}" />
+
+                        <NumberBox Header="Duck Volume (%)" 
+                                   Value="{x:Bind ViewModel.DuckVolumePercentageVal, Mode=TwoWay}" 
+                                   Minimum="0" Maximum="100" SpinButtonPlacementMode="Compact" />
+
+                        <NumberBox Header="Fade Duration (ms)" 
+                                   Value="{x:Bind ViewModel.FadeDurationMsVal, Mode=TwoWay}" 
+                                   Minimum="0" Maximum="5000" SpinButtonPlacementMode="Compact"
+                                   Description="How long the fade takes to complete." />
+                        
+                        <NumberBox Header="Minimum Playback Duration (ms)" 
+                                   Value="{x:Bind ViewModel.MinPlaybackDurationMsVal, Mode=TwoWay}" 
+                                   Minimum="0" Maximum="5000" SpinButtonPlacementMode="Compact"
+                                   Description="How long an app must play audio before it ducks the music (ignores short pings)." />
+                        
+                        <NumberBox Header="Restore Delay (ms)" 
+                                   Value="{x:Bind ViewModel.RestoreDelayMsVal, Mode=TwoWay}" 
+                                   Minimum="0" Maximum="5000" SpinButtonPlacementMode="Compact"
+                                   Description="How long to wait after audio stops before bringing the music back up." />
+
+                    </StackPanel>
+                </Border>
+
+                <!-- System Category -->
+                <TextBlock Text="System" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0" />
+                <Border Style="{StaticResource CardBorderStyle}" Padding="16">
+                    <StackPanel Spacing="12">
+                        
+                        <ToggleSwitch Header="Launch on Startup" 
+                                      IsOn="{x:Bind ViewModel.LaunchOnStartup, Mode=TwoWay}" />
+
+                        <ToggleSwitch Header="Start Minimized to Tray" 
+                                      IsOn="{x:Bind ViewModel.StartMinimized, Mode=TwoWay}" />
+                        
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

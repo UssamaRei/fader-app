@@ -22,8 +22,9 @@ public sealed partial class DashboardPage : Page
     public DashboardPage()
     {
         ViewModel = App.Services.GetRequiredService<DashboardViewModel>();
-        DataContext = ViewModel;
         InitializeComponent();
+        ViewModel.InitializeDispatcher(this.DispatcherQueue);
+        DataContext = ViewModel;
 
         // Trigger initial session scan when page is loaded
         Loaded += OnPageLoaded;

@@ -19,7 +19,7 @@ namespace Fader.Core.Audio;
 /// Thread safety: All public methods are safe to call from any thread.
 /// Internal COM objects are created and used on a dedicated STA thread.
 /// </summary>
-public sealed class AudioSessionManager : IDisposable
+public sealed class AudioSessionManager : IAudioSessionManager, IDisposable
 {
     // ─── Events ───────────────────────────────────────────────────────────────
 
@@ -35,6 +35,7 @@ public sealed class AudioSessionManager : IDisposable
     // ─── State ────────────────────────────────────────────────────────────────
 
     private readonly ILogger<AudioSessionManager> _logger;
+    private readonly Fader.Core.Services.ISettingsService _settingsService;
 
     /// <summary>
     /// Thread-safe dictionary keyed on WASAPI session identifier.
@@ -45,13 +46,16 @@ public sealed class AudioSessionManager : IDisposable
         _sessions = new();
 
     private MMDeviceEnumerator? _deviceEnumerator;
+    private MMDevice? _device;
+    private NAudio.CoreAudioApi.AudioSessionManager? _sessionManager;
     private bool _disposed;
 
     // ─── Constructor ──────────────────────────────────────────────────────────
 
-    public AudioSessionManager(ILogger<AudioSessionManager> logger)
+    public AudioSessionManager(ILogger<AudioSessionManager> logger, Fader.Core.Services.ISettingsService settingsService)
     {
         _logger = logger;
+        _settingsService = settingsService;
     }
 
     // ─── Public API ───────────────────────────────────────────────────────────
@@ -132,12 +136,15 @@ public sealed class AudioSessionManager : IDisposable
     {
         try
         {
-            _deviceEnumerator ??= new MMDeviceEnumerator();
+            if (_deviceEnumerator == null)
+            {
+                _deviceEnumerator = new MMDeviceEnumerator();
+                _device = _deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                _sessionManager = _device.AudioSessionManager;
+                _sessionManager.OnSessionCreated += OnSessionCreated;
+            }
 
-            // Get the default audio output (speakers/headphones)
-            using var device = _deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-            var sessionManager = device.AudioSessionManager;
-            var sessions = sessionManager.Sessions;
+            var sessions = _sessionManager!.Sessions;
 
             var newSessionIds = new HashSet<string>();
             var freshSessions = new List<AudioSession>();
@@ -211,7 +218,12 @@ public sealed class AudioSessionManager : IDisposable
                 ExecutablePath = execPath,
                 Volume = control.SimpleAudioVolume.Volume,
                 IsPlaying = control.State == AudioSessionState.AudioSessionStateActive,
+                Role = _settingsService.GetAppRole(execPath)
             };
+
+            // Register real-time WASAPI event handler
+            var handler = new SessionEventHandler(session, OnSessionDisconnected);
+            control.RegisterEventClient(handler);
 
             _sessions[sessionId] = (session, control);
             freshSessions.Add(session);
@@ -247,6 +259,11 @@ public sealed class AudioSessionManager : IDisposable
         if (_disposed) return;
         _disposed = true;
 
+        if (_sessionManager != null)
+        {
+            _sessionManager.OnSessionCreated -= OnSessionCreated;
+        }
+
         foreach (var (_, control) in _sessions.Values)
         {
             try { control.Dispose(); }
@@ -254,6 +271,70 @@ public sealed class AudioSessionManager : IDisposable
         }
 
         _sessions.Clear();
+        _device?.Dispose();
         _deviceEnumerator?.Dispose();
+    }
+
+    // ─── WASAPI Event Handlers ────────────────────────────────────────────────
+
+    private void OnSessionCreated(object sender, IAudioSessionControl newSession)
+    {
+        // Session created event is fired on a background thread.
+        // We wrap the unmanaged control and process it.
+        try
+        {
+            var control = new AudioSessionControl(newSession);
+            var newSessionIds = new HashSet<string>();
+            var freshSessions = new List<AudioSession>();
+            
+            TryAddOrUpdateSession(control, newSessionIds, freshSessions);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to handle OnSessionCreated event");
+        }
+    }
+
+    private void OnSessionDisconnected(string sessionId)
+    {
+        if (_sessions.TryRemove(sessionId, out var removed))
+        {
+            _logger.LogInformation("Session disconnected: {Name}", removed.Session.DisplayName);
+            SessionRemoved?.Invoke(this, removed.Session);
+            try { removed.Control.Dispose(); } catch { }
+        }
+    }
+
+    private sealed class SessionEventHandler : IAudioSessionEventsHandler
+    {
+        private readonly AudioSession _session;
+        private readonly Action<string> _onDisconnected;
+
+        public SessionEventHandler(AudioSession session, Action<string> onDisconnected)
+        {
+            _session = session;
+            _onDisconnected = onDisconnected;
+        }
+
+        public void OnVolumeChanged(float volume, bool isMuted)
+        {
+            // WASAPI notifies us when the volume changes externally
+            _session.Volume = volume;
+        }
+
+        public void OnDisplayNameChanged(string displayName) { }
+        public void OnIconPathChanged(string iconPath) { }
+        public void OnChannelVolumeChanged(uint channelCount, IntPtr newVolumes, uint channelIndex) { }
+        public void OnGroupingParamChanged(ref Guid groupingId) { }
+
+        public void OnStateChanged(AudioSessionState state)
+        {
+            _session.IsPlaying = state == AudioSessionState.AudioSessionStateActive;
+        }
+
+        public void OnSessionDisconnected(AudioSessionDisconnectReason disconnectReason)
+        {
+            _onDisconnected(_session.SessionId);
+        }
     }
 }

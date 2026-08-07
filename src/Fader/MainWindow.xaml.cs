@@ -23,12 +23,34 @@ public sealed partial class MainWindow : Window
     private MicaController? _micaController;
     private SystemBackdropConfiguration? _backdropConfig;
 
+    public CommunityToolkit.Mvvm.Input.IRelayCommand ShowWindowCommand { get; }
+
     public MainWindow()
     {
+        ShowWindowCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ShowAppWindow);
         InitializeComponent();
 
         SetupWindow();
         SetupBackdrop();
+
+        // Navigate to dashboard initially
+        RootFrame.Navigate(typeof(Pages.DashboardPage));
+    }
+
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (RootFrame.Content is Pages.SettingsPage)
+        {
+            RootFrame.Navigate(typeof(Pages.DashboardPage));
+            SettingsButton.Icon = new SymbolIcon(Symbol.Setting);
+            ToolTipService.SetToolTip(SettingsButton, "Settings");
+        }
+        else
+        {
+            RootFrame.Navigate(typeof(Pages.SettingsPage));
+            SettingsButton.Icon = new SymbolIcon(Symbol.Home);
+            ToolTipService.SetToolTip(SettingsButton, "Dashboard");
+        }
     }
 
     // ─── Window Setup ─────────────────────────────────────────────────────────
@@ -45,9 +67,13 @@ public sealed partial class MainWindow : Window
         {
             var titleBar = appWindow.TitleBar;
             titleBar.ExtendsContentIntoTitleBar = true;
+            
             // Title bar button colors will be set to match Mica after backdrop is applied
             titleBar.ButtonBackgroundColor = Colors.Transparent;
             titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+            // Dynamically adjust our custom title bar grid to not overlap system buttons
+            TitleBarGrid.Padding = new Thickness(0, 0, titleBar.RightInset, 0);
         }
     }
 
@@ -90,12 +116,36 @@ public sealed partial class MainWindow : Window
 
     private void OnWindowClosed(object sender, WindowEventArgs args)
     {
+        // Don't actually exit the app when the user closes the window.
+        // Instead, hide it to the system tray.
+        args.Handled = true;
+        AppWindow.Hide();
+    }
+
+    private void ShowAppWindow()
+    {
+        // Ensure the window comes to the foreground
+        AppWindow.Show();
+        Activate(); // Brings window to front
+    }
+
+    private void MenuExit_Click(object sender, RoutedEventArgs e)
+    {
         // Dispose backdrop resources cleanly
         if (_micaController is not null)
         {
             _micaController.Dispose();
             _micaController = null;
         }
-        Activated -= OnWindowActivated;
+        
+        TrayIcon?.Dispose();
+
+        // Gracefully shut down background services to prevent CLR assert failure
+        if (App.Services is IDisposable disposableProvider)
+        {
+            disposableProvider.Dispose();
+        }
+
+        Application.Current.Exit();
     }
 }

@@ -19,8 +19,14 @@ public sealed partial class DashboardViewModel : ObservableObject, IDisposable
 {
     // ─── Dependencies ─────────────────────────────────────────────────────────
 
-    private readonly AudioSessionManager _audioSessionManager;
+    private readonly IAudioSessionManager _audioSessionManager;
     private readonly ILogger<DashboardViewModel> _logger;
+    private Microsoft.UI.Dispatching.DispatcherQueue? _dispatcherQueue;
+
+    public void InitializeDispatcher(Microsoft.UI.Dispatching.DispatcherQueue dispatcherQueue)
+    {
+        _dispatcherQueue = dispatcherQueue;
+    }
 
     // ─── Observable State ─────────────────────────────────────────────────────
 
@@ -48,11 +54,12 @@ public sealed partial class DashboardViewModel : ObservableObject, IDisposable
     // ─── Constructor ──────────────────────────────────────────────────────────
 
     public DashboardViewModel(
-        AudioSessionManager audioSessionManager,
+        IAudioSessionManager audioSessionManager,
         ILogger<DashboardViewModel> logger)
     {
         _audioSessionManager = audioSessionManager;
         _logger = logger;
+        _dispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
 
         // Subscribe to session manager events
         _audioSessionManager.SessionAdded += OnSessionAdded;
@@ -148,17 +155,16 @@ public sealed partial class DashboardViewModel : ObservableObject, IDisposable
 
     /// <summary>
     /// Dispatches an action to the UI dispatcher queue.
-    /// Uses Microsoft.UI.Dispatching if available, otherwise falls back to direct invocation.
     /// </summary>
-    private static void DispatchToUiThread(Action action)
+    private void DispatchToUiThread(Action action)
     {
-        if (Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread() is { } queue)
+        if (_dispatcherQueue != null)
         {
-            queue.TryEnqueue(() => action());
+            _dispatcherQueue.TryEnqueue(() => action());
         }
         else
         {
-            // Already on UI thread (e.g. during testing or direct calls)
+            // Fallback for tests
             action();
         }
     }
