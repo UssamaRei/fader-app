@@ -50,14 +50,21 @@
                     </StackPanel>
                 </StackPanel>
 
-                <Button Grid.Column="1"
-                        x:Name="RefreshButton"
-                        Command="{Binding RefreshCommand}"
-                        Style="{StaticResource IconButtonStyle}"
-                        ToolTipService.ToolTip="Refresh audio sessions"
-                        VerticalAlignment="Center">
-                    <FontIcon Glyph="&#xE72C;" FontSize="14" />
-                </Button>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button x:Name="RefreshButton"
+                            Command="{Binding RefreshCommand}"
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTipService.ToolTip="Refresh audio sessions">
+                        <FontIcon Glyph="&#xE72C;" FontSize="14" />
+                    </Button>
+
+                    <Button x:Name="SettingsButton"
+                            Click="SettingsButton_Click"
+                            Style="{StaticResource IconButtonStyle}"
+                            ToolTipService.ToolTip="Settings">
+                        <FontIcon Glyph="&#xE713;" FontSize="14" />
+                    </Button>
+                </StackPanel>
             </Grid>
 
             <!-- ═══ Active Sessions Section ══════════════════════════════════ -->

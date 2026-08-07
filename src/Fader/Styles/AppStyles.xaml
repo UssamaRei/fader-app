@@ -15,6 +15,32 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ═══════════════════════════════════════════════════════════════════════
+         TYPOGRAPHY TOKENS (WinUI 3 Theme Overrides)
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Default">
+            <FontFamily x:Key="ContentControlThemeFontFamily">/Assets/Fonts/MiracleDays.ttf#Miracle Days</FontFamily>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <FontFamily x:Key="ContentControlThemeFontFamily">/Assets/Fonts/MiracleDays.ttf#Miracle Days</FontFamily>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+            <FontFamily x:Key="ContentControlThemeFontFamily">/Assets/Fonts/MiracleDays.ttf#Miracle Days</FontFamily>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <FontFamily x:Key="MiracleDaysFont">/Assets/Fonts/MiracleDays.ttf#Miracle Days</FontFamily>
+
+    <!-- Implicit style to apply custom font globally to TextBlocks and Controls -->
+    <Style TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource MiracleDaysFont}" />
+    </Style>
+    <Style TargetType="Control">
+        <Setter Property="FontFamily" Value="{StaticResource MiracleDaysFont}" />
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
          COLOR TOKENS
          ═══════════════════════════════════════════════════════════════════════ -->
 

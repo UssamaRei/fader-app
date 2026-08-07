@@ -13,4 +13,16 @@ public sealed partial class SettingsPage : Page
         ViewModel = App.Services.GetRequiredService<SettingsViewModel>();
         this.InitializeComponent();
     }
+
+    private void BackButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (Frame.CanGoBack)
+        {
+            Frame.GoBack();
+        }
+        else
+        {
+            Frame.Navigate(typeof(DashboardPage));
+        }
+    }
 }

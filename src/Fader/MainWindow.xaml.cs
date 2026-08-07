@@ -41,21 +41,7 @@ public sealed partial class MainWindow : Window
         Activate();
     }
 
-    private void SettingsButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (RootFrame.Content is Pages.SettingsPage)
-        {
-            RootFrame.Navigate(typeof(Pages.DashboardPage));
-            SettingsButton.Icon = new SymbolIcon(Symbol.Setting);
-            ToolTipService.SetToolTip(SettingsButton, "Settings");
-        }
-        else
-        {
-            RootFrame.Navigate(typeof(Pages.SettingsPage));
-            SettingsButton.Icon = new SymbolIcon(Symbol.Home);
-            ToolTipService.SetToolTip(SettingsButton, "Dashboard");
-        }
-    }
+
 
     // ─── Window Setup ─────────────────────────────────────────────────────────
 
@@ -64,6 +50,7 @@ public sealed partial class MainWindow : Window
         // Set a minimum size appropriate for the dashboard layout
         var appWindow = AppWindow;
         appWindow.Title = "Fader";
+        appWindow.SetIcon(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets\\AppIcon.ico"));
         appWindow.Resize(new SizeInt32(520, 760));
 
         // Center on screen

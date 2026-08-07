@@ -15,8 +15,16 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <TextBlock Text="Settings" Style="{StaticResource HeaderTextBlockStyle}" Margin="0,0,0,24" />
+        <!-- Header with Back Button -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" VerticalAlignment="Center">
+            <Button x:Name="BackButton"
+                    Click="BackButton_Click"
+                    Style="{StaticResource IconButtonStyle}"
+                    ToolTipService.ToolTip="Back to Dashboard">
+                <FontIcon Glyph="&#xE72B;" FontSize="14" />
+            </Button>
+            <TextBlock Text="Settings" Style="{StaticResource HeaderTextBlockStyle}" VerticalAlignment="Center" />
+        </StackPanel>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16" MaxWidth="600" HorizontalAlignment="Left">

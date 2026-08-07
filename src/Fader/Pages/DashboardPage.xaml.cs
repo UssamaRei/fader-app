@@ -30,6 +30,11 @@ public sealed partial class DashboardPage : Page
         Loaded += OnPageLoaded;
     }
 
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        Frame.Navigate(typeof(SettingsPage));
+    }
+
     // ─── Lifecycle ────────────────────────────────────────────────────────────
 
     private async void OnPageLoaded(object sender, RoutedEventArgs e)

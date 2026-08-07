@@ -49,6 +49,7 @@ public sealed class AudioSessionManager : IAudioSessionManager, IDisposable
     private MMDevice? _device;
     private NAudio.CoreAudioApi.AudioSessionManager? _sessionManager;
     private bool _disposed;
+    private System.Threading.Timer? _pollingTimer;
 
     // ─── Constructor ──────────────────────────────────────────────────────────
 
@@ -56,6 +57,30 @@ public sealed class AudioSessionManager : IAudioSessionManager, IDisposable
     {
         _logger = logger;
         _settingsService = settingsService;
+        _pollingTimer = new System.Threading.Timer(PollAudioMeters, null, TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(100));
+    }
+
+    private void PollAudioMeters(object? state)
+    {
+        if (_disposed) return;
+
+        foreach (var (_, (session, control)) in _sessions)
+        {
+            try
+            {
+                var peak = control.AudioMeterInformation.MasterPeakValue;
+                bool isActuallyPlaying = peak > 0.0001f;
+
+                if (session.IsPlaying != isActuallyPlaying)
+                {
+                    session.IsPlaying = isActuallyPlaying;
+                }
+            }
+            catch
+            {
+                // COM object may be dead or unavailable
+            }
+        }
     }
 
     // ─── Public API ───────────────────────────────────────────────────────────
@@ -259,6 +284,8 @@ public sealed class AudioSessionManager : IAudioSessionManager, IDisposable
         if (_disposed) return;
         _disposed = true;
 
+        _pollingTimer?.Dispose();
+
         if (_sessionManager != null)
         {
             _sessionManager.OnSessionCreated -= OnSessionCreated;
@@ -329,7 +356,8 @@ public sealed class AudioSessionManager : IAudioSessionManager, IDisposable
 
         public void OnStateChanged(AudioSessionState state)
         {
-            _session.IsPlaying = state == AudioSessionState.AudioSessionStateActive;
+            // We now rely entirely on PollAudioMeters for accurate, instantaneous IsPlaying state
+            // _session.IsPlaying = state == AudioSessionState.AudioSessionStateActive;
         }
 
         public void OnSessionDisconnected(AudioSessionDisconnectReason disconnectReason)

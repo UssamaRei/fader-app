@@ -73,15 +73,6 @@
                        Margin="8,0,0,0"
                        Style="{StaticResource TitleBarTextStyle}"
                        IsHitTestVisible="False" />
-                       
-            <!-- Settings Button -->
-            <!-- We dynamically add RightInset to TitleBarGrid in code-behind to avoid system buttons -->
-            <AppBarButton Grid.Column="3" 
-                          x:Name="SettingsButton"
-                          Icon="Setting"
-                          Width="48" Height="48"
-                          Click="SettingsButton_Click"
-                          ToolTipService.ToolTip="Settings" />
         </Grid>
 
         <!-- ═══ Page Content ════════════════════════════════════════════════ -->
