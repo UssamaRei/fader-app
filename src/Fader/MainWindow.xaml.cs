@@ -35,6 +35,10 @@ public sealed partial class MainWindow : Window
 
         // Navigate to dashboard initially
         RootFrame.Navigate(typeof(Pages.DashboardPage));
+        
+        // Explicitly force the window to show and bring to front
+        AppWindow.Show();
+        Activate();
     }
 
     private void SettingsButton_Click(object sender, RoutedEventArgs e)

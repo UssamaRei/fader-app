@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}" Margin="0,0,0,24" />
+        <TextBlock Text="Settings" Style="{StaticResource HeaderTextBlockStyle}" Margin="0,0,0,24" />
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16" MaxWidth="600" HorizontalAlignment="Left">

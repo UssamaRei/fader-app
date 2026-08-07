@@ -36,6 +36,15 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        UnhandledException += (s, e) =>
+        {
+            var logger = App.Services.GetService<Microsoft.Extensions.Logging.ILogger<App>>();
+            if (logger != null)
+            {
+                logger.LogCritical(e.Exception, "Unhandled UI Exception: {Message}", e.Message);
+            }
+        };
+
         MainWindow = new MainWindow();
         MainWindow.Activate();
     }

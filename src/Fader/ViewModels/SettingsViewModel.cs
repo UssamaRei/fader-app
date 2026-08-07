@@ -66,14 +66,46 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         var settings = _settingsService.GetSettings();
         
-        settings.DuckVolume = (float)(DuckVolumePercentageVal / 100.0);
-        settings.FadeDurationMs = (int)FadeDurationMsVal;
-        settings.RestoreDelayMs = (int)RestoreDelayMsVal;
-        settings.MinPlaybackDurationMs = (int)MinPlaybackDurationMsVal;
+        settings.DuckVolume = double.IsNaN(DuckVolumePercentageVal) ? 0f : (float)(DuckVolumePercentageVal / 100.0);
+        settings.FadeDurationMs = double.IsNaN(FadeDurationMsVal) ? 0 : (int)FadeDurationMsVal;
+        settings.RestoreDelayMs = double.IsNaN(RestoreDelayMsVal) ? 0 : (int)RestoreDelayMsVal;
+        settings.MinPlaybackDurationMs = double.IsNaN(MinPlaybackDurationMsVal) ? 0 : (int)MinPlaybackDurationMsVal;
         settings.DuckingEnabled = DuckingEnabled;
         settings.LaunchOnStartup = LaunchOnStartup;
         settings.StartMinimized = StartMinimized;
 
         _settingsService.SaveSettings();
+        
+        ApplyStartupRegistry(LaunchOnStartup);
+    }
+
+    private void ApplyStartupRegistry(bool launchOnStartup)
+    {
+        try
+        {
+            const string runKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+            const string appName = "Fader";
+            
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(runKey, true);
+            if (key == null) return;
+
+            if (launchOnStartup)
+            {
+                var exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+                if (!string.IsNullOrEmpty(exePath))
+                {
+                    key.SetValue(appName, $"\"{exePath}\"");
+                }
+            }
+            else
+            {
+                key.DeleteValue(appName, false);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Fallback gracefully if registry access fails
+            System.Diagnostics.Debug.WriteLine($"Failed to set startup registry key: {ex.Message}");
+        }
     }
 }
