@@ -54,4 +54,23 @@ public sealed class AudioSessionTests
         var session = new AudioSession { Volume = volume };
         Assert.Equal(volume, session.Volume);
     }
+
+    [Theory]
+    [InlineData(-0.2f, 0.0f)]
+    [InlineData(1.5f, 1.0f)]
+    public void AudioSession_Volume_ClampsOutOfRangeValues(float input, float expected)
+    {
+        var session = new AudioSession { Volume = input };
+        Assert.Equal(expected, session.Volume);
+    }
+
+    [Fact]
+    public void AudioSession_IsMuted_ReturnsTrueWhenZeroOrNegative()
+    {
+        var session = new AudioSession { Volume = 0.0f };
+        Assert.True(session.IsMuted);
+
+        session.Volume = 0.5f;
+        Assert.False(session.IsMuted);
+    }
 }

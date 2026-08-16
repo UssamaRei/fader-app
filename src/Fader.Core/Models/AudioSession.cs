@@ -39,13 +39,19 @@ public sealed class AudioSession : INotifyPropertyChanged
     private float _volume;
     /// <summary>
     /// Current master volume scalar of this session, in the range [0.0, 1.0].
+    /// Clamped automatically to [0.0, 1.0].
     /// This value reflects the actual Windows volume at the time of last refresh.
     /// </summary>
     public float Volume
     {
         get => _volume;
-        set => SetProperty(ref _volume, value);
+        set => SetProperty(ref _volume, Utilities.VolumeHelper.ClampVolume(value));
     }
+
+    /// <summary>
+    /// Gets whether the current session is effectively muted (volume is zero).
+    /// </summary>
+    public bool IsMuted => _volume <= Utilities.VolumeHelper.MinVolume;
 
     private bool _isPlaying;
     /// <summary>
