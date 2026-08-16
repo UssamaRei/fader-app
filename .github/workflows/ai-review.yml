@@ -26,6 +26,8 @@ jobs:
       # Point this to this repository's action:
       - name: Run AI Code Review
         uses: UssamaRei/AI-POWERED-CODE-REVIEW-ASSISTANT@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           severity_threshold: 'SUGGESTION'
